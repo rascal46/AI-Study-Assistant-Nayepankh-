@@ -36,6 +36,16 @@ st.write("Ask study-related questions, generate quizzes, and track your learning
 
 with st.sidebar:
 
+    page = st.radio(
+    "Navigation",
+    [
+        "💬 Chat Assistant",
+        "📝 Quiz Generator",
+        "📅 Study Planner"
+    ]
+)
+    st.markdown("---")
+
     st.header("📖 Topics Studied")
 
     if len(memory["topics"]) == 0:
@@ -46,39 +56,6 @@ with st.sidebar:
             st.write(f"• {topic}")
 
     st.markdown("---")
-
-    st.header("📝 Quiz Generator")
-
-    quiz_topic = st.text_input(
-        "Enter a topic"
-    )
-
-    generate_quiz = st.button(
-        "Generate Quiz"
-    )
-
-    st.markdown("---")
-
-st.header("📅 Study Planner")
-
-subject = st.text_input(
-    "Subject Name"
-)
-
-exam_date = st.date_input(
-    "Exam Date"
-)
-
-hours_per_day = st.number_input(
-    "Hours Per Day",
-    min_value=1,
-    max_value=24,
-    value=3
-)
-
-generate_plan = st.button(
-    "Generate Study Plan"
-)
 
 # ==========================
 # Session State
@@ -97,10 +74,12 @@ if "study_plan" not in st.session_state:
 # Display Chat History
 # ==========================
 
-for message in st.session_state.messages:
+if page == "💬 Chat Assistant":
+    
+    for message in st.session_state.messages:
 
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
 # ==========================
 # Chat Input
@@ -161,188 +140,223 @@ if prompt:
 
     save_memory(memory)
 
-# ==========================
-# Quiz Session Variables
-# ==========================
+if page == "📝 Quiz Generator":
 
-if "quiz_questions" not in st.session_state:
-    st.session_state.quiz_questions = []
+    st.header("📝 Quiz Generator")
 
-if "current_question" not in st.session_state:
-    st.session_state.current_question = 0
+    quiz_topic = st.text_input(
+        "Enter a topic"
+    )
 
-if "score" not in st.session_state:
-    st.session_state.score = 0
+    generate_quiz = st.button(
+        "Generate Quiz"
+    )
 
-if "show_result" not in st.session_state:
-    st.session_state.show_result = False
+    # ==========================
+    # Quiz Session Variables
+    # ==========================
 
-if "last_result" not in st.session_state:
-    st.session_state.last_result = ""
+    if "quiz_questions" not in st.session_state:
+        st.session_state.quiz_questions = []
 
-# ==========================
-# Generate Quiz
-# ==========================
+    if "current_question" not in st.session_state:
+        st.session_state.current_question = 0
 
-if generate_quiz and quiz_topic:
+    if "score" not in st.session_state:
+        st.session_state.score = 0
 
-    with st.spinner("Generating quiz..."):
+    if "show_result" not in st.session_state:
+        st.session_state.show_result = False
 
-        quiz_prompt = f"""
-Generate exactly 5 MCQs on {quiz_topic}.
+    if "last_result" not in st.session_state:
+        st.session_state.last_result = ""
 
-Return ONLY valid JSON.
+    # ==========================
+    # Generate Quiz
+    # ==========================
 
-Format:
+    if generate_quiz and quiz_topic:
 
-[
-  {{
-    "question": "Question text",
-    "options": [
-      "Option A",
-      "Option B",
-      "Option C",
-      "Option D"
-    ],
-    "answer": 0,
-    "explanation": "Short explanation"
-  }}
-]
+        with st.spinner("Generating quiz..."):
 
-Requirements:
-- Return exactly 5 questions.
-- answer must be the index of the correct option (0,1,2,3).
-- No markdown.
-- No code fences.
-"""
+            quiz_prompt = f"""
+    Generate exactly 5 MCQs on {quiz_topic}.
 
-        try:
+    Return ONLY valid JSON.
 
-            quiz_response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=quiz_prompt,
-                config={
-                    "response_mime_type": "application/json"
-                }
+    Format:
+
+    [
+    {{
+        "question": "Question text",
+        "options": [
+        "Option A",
+        "Option B",
+        "Option C",
+        "Option D"
+        ],
+        "answer": 0,
+        "explanation": "Short explanation"
+    }}
+    ]
+
+    Requirements:
+    - Return exactly 5 questions.
+    - answer must be the index of the correct option (0,1,2,3).
+    - No markdown.
+    - No code fences.
+    """
+
+            try:
+
+                quiz_response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=quiz_prompt,
+                    config={
+                        "response_mime_type": "application/json"
+                    }
+                )
+
+                questions = json.loads(
+                    quiz_response.text
+                )
+
+                st.session_state.quiz_questions = questions
+                st.session_state.current_question = 0
+                st.session_state.score = 0
+                st.session_state.show_result = False
+
+                st.success("Quiz generated!")
+
+            except Exception as e:
+
+                st.error(
+                    f"Quiz generation failed: {e}"
+                )
+
+    # ==========================
+    # Display Quiz
+    # ==========================
+
+    if st.session_state.quiz_questions:
+
+        q_index = st.session_state.current_question
+
+        if q_index < len(st.session_state.quiz_questions):
+
+            q = st.session_state.quiz_questions[q_index]
+
+            st.markdown("---")
+
+            st.subheader(
+                f"Question {q_index + 1} of {len(st.session_state.quiz_questions)}"
             )
 
-            questions = json.loads(
-                quiz_response.text
+            st.write(q["question"])
+
+            selected_answer = st.radio(
+                "Choose your answer:",
+                range(4),
+                format_func=lambda i: q["options"][i],
+                key=f"question_{q_index}"
             )
 
-            st.session_state.quiz_questions = questions
-            st.session_state.current_question = 0
-            st.session_state.score = 0
-            st.session_state.show_result = False
+            if not st.session_state.show_result:
 
-            st.success("Quiz generated!")
+                if st.button("Submit Answer"):
 
-        except Exception as e:
+                    if selected_answer == q["answer"]:
 
-            st.error(
-                f"Quiz generation failed: {e}"
-            )
+                        st.session_state.score += 1
 
-# ==========================
-# Display Quiz
-# ==========================
+                        st.session_state.last_result = (
+                            "✅ Correct!\n\n"
+                            + q["explanation"]
+                        )
 
-if st.session_state.quiz_questions:
+                    else:
 
-    q_index = st.session_state.current_question
+                        correct_option = q["options"][q["answer"]]
 
-    if q_index < len(st.session_state.quiz_questions):
+                        st.session_state.last_result = (
+                            f"❌ Incorrect.\n\n"
+                            f"Correct Answer:\n{correct_option}\n\n"
+                            f"{q['explanation']}"
+                        )
 
-        q = st.session_state.quiz_questions[q_index]
+                    st.session_state.show_result = True
 
-        st.markdown("---")
+                    st.rerun()
 
-        st.subheader(
-            f"Question {q_index + 1} of {len(st.session_state.quiz_questions)}"
-        )
+            else:
 
-        st.write(q["question"])
+                st.info(
+                    st.session_state.last_result
+                )
 
-        selected_answer = st.radio(
-            "Choose your answer:",
-            range(4),
-            format_func=lambda i: q["options"][i],
-            key=f"question_{q_index}"
-        )
+                if st.button("Next Question"):
 
-        if not st.session_state.show_result:
+                    st.session_state.current_question += 1
+                    st.session_state.show_result = False
 
-            if st.button("Submit Answer"):
-
-                if selected_answer == q["answer"]:
-
-                    st.session_state.score += 1
-
-                    st.session_state.last_result = (
-                        "✅ Correct!\n\n"
-                        + q["explanation"]
-                    )
-
-                else:
-
-                    correct_option = q["options"][q["answer"]]
-
-                    st.session_state.last_result = (
-                        f"❌ Incorrect.\n\n"
-                        f"Correct Answer:\n{correct_option}\n\n"
-                        f"{q['explanation']}"
-                    )
-
-                st.session_state.show_result = True
-
-                st.rerun()
+                    st.rerun()
 
         else:
 
-            st.info(
-                st.session_state.last_result
+            st.markdown("---")
+
+            st.success(
+                f"Quiz Complete! Score: {st.session_state.score}/{len(st.session_state.quiz_questions)}"
             )
 
-            if st.button("Next Question"):
+            continue_quiz = st.radio(
+                "Would you like another quiz?",
+                ["No", "Yes"]
+            )
 
-                st.session_state.current_question += 1
+            if continue_quiz == "Yes":
+
+                st.session_state.quiz_questions = []
+                st.session_state.current_question = 0
+                st.session_state.score = 0
                 st.session_state.show_result = False
 
-                st.rerun()
+                st.info(
+                    "Enter a topic and generate another quiz."
+                )
 
-    else:
+if page == "📅 Study Planner":
 
-        st.markdown("---")
+    st.header("📅 Study Planner")
 
-        st.success(
-            f"Quiz Complete! Score: {st.session_state.score}/{len(st.session_state.quiz_questions)}"
-        )
+    subject = st.text_input(
+        "Subject Name"
+    )
 
-        continue_quiz = st.radio(
-            "Would you like another quiz?",
-            ["No", "Yes"]
-        )
+    exam_date = st.date_input(
+        "Exam Date"
+    )
 
-        if continue_quiz == "Yes":
+    hours_per_day = st.number_input(
+        "Hours Per Day",
+        min_value=1,
+        max_value=24,
+        value=3
+    )
 
-            st.session_state.quiz_questions = []
-            st.session_state.current_question = 0
-            st.session_state.score = 0
-            st.session_state.show_result = False
+    generate_plan = st.button(
+        "Generate Study Plan"
+    )
 
-            st.info(
-                "Enter a topic and generate another quiz."
-            )
+    # ==========================
+    # Study Planner
+    # ==========================
 
-# ==========================
-# Study Planner
-# ==========================
+    if generate_plan and subject:
 
-if generate_plan and subject:
+        with st.spinner("Creating study plan..."):
 
-    with st.spinner("Creating study plan..."):
-
-        planner_prompt = f"""
+            planner_prompt = f"""
 Create a study plan.
 
 Subject: {subject}
@@ -355,23 +369,23 @@ Requirements:
 - Be realistic.
 """
 
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=planner_prompt
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=planner_prompt
+            )
+
+            st.session_state.study_plan = response.text
+
+    # ==========================
+    # Display Study Plan
+    # ==========================
+
+    if st.session_state.study_plan:
+
+        st.markdown("---")
+
+        st.subheader("📅 Generated Study Plan")
+
+        st.write(
+            st.session_state.study_plan
         )
-
-        st.session_state.study_plan = response.text
-
-# ==========================
-# Display Study Plan
-# ==========================
-
-if st.session_state.study_plan:
-
-    st.markdown("---")
-
-    st.subheader("📅 Generated Study Plan")
-
-    st.write(
-        st.session_state.study_plan
-    )
