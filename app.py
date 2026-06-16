@@ -310,84 +310,84 @@ No extra text.
 # Display Quiz
 # ==========================
 
-if st.session_state.quiz_questions:
+        if st.session_state.quiz_questions:
 
-    q_index = st.session_state.current_question
+            q_index = st.session_state.current_question
 
-    if q_index < len(st.session_state.quiz_questions):
+            if q_index < len(st.session_state.quiz_questions):
 
-        q = st.session_state.quiz_questions[q_index]
+                q = st.session_state.quiz_questions[q_index]
 
-        st.markdown("---")
+                st.markdown("---")
 
-        st.subheader(
-            f"Question {q_index + 1} of {len(st.session_state.quiz_questions)}"
-        )
+                st.subheader(
+                    f"Question {q_index + 1} of {len(st.session_state.quiz_questions)}"
+                )
 
-        st.write(q["question"])
+                st.write(q["question"])
 
-        selected_answer = st.radio(
-            "Choose your answer:",
-            range(4),
-            format_func=lambda i: q["options"][i],
-            key=f"question_{q_index}"
-        )
+                selected_answer = st.radio(
+                    "Choose your answer:",
+                    range(4),
+                    format_func=lambda i: q["options"][i],
+                    key=f"question_{q_index}"
+                )
 
-        if not st.session_state.show_result:
+                if not st.session_state.show_result:
 
-            if st.button("Submit Answer"):
+                    if st.button("Submit Answer"):
 
-                if selected_answer == q["answer"]:
+                        if selected_answer == q["answer"]:
 
-                    st.session_state.score += 1
+                            st.session_state.score += 1
 
-                    st.session_state.last_result = (
-                        "✅ Correct!\n\n"
-                        + q["explanation"]
-                    )
+                            st.session_state.last_result = (
+                                "✅ Correct!\n\n"
+                                + q["explanation"]
+                            )
+
+                        else:
+
+                            correct_option = q["options"][q["answer"]]
+
+                            st.session_state.wrong_questions.append(
+                                {
+                                    "question": q["question"],
+                                    "correct_answer": correct_option,
+                                    "explanation": q["explanation"]
+                                }
+                            )
+
+                            st.session_state.last_result = (
+                                f"❌ Incorrect.\n\n"
+                                f"Correct Answer:\n{correct_option}\n\n"
+                                f"{q['explanation']}"
+                            )
+
+                        st.session_state.show_result = True
+
+                        st.rerun()
 
                 else:
 
-                    correct_option = q["options"][q["answer"]]
-
-                    st.session_state.wrong_questions.append(
-                        {
-                            "question": q["question"],
-                            "correct_answer": correct_option,
-                            "explanation": q["explanation"]
-                        }
+                    st.info(
+                        st.session_state.last_result
                     )
 
-                    st.session_state.last_result = (
-                        f"❌ Incorrect.\n\n"
-                        f"Correct Answer:\n{correct_option}\n\n"
-                        f"{q['explanation']}"
-                    )
+                    if st.button("Next Question"):
 
-                st.session_state.show_result = True
+                        st.session_state.current_question += 1
+                        st.session_state.show_result = False
 
-                st.rerun()
+                        st.rerun()
 
-        else:
+            else:
 
-            st.info(
-                st.session_state.last_result
-            )
+                st.markdown("---")
 
-            if st.button("Next Question"):
-
-                st.session_state.current_question += 1
-                st.session_state.show_result = False
-
-                st.rerun()
-
-    else:
-
-        st.markdown("---")
-
-        st.success(
-            f"Quiz Complete! Score: {st.session_state.score}/{len(st.session_state.quiz_questions)}"
-        )
+                st.success(
+                    f"Quiz Complete! Score: {st.session_state.score}/{len(st.session_state.quiz_questions)}"
+                )
 
         if st.button("📊 Analyze My Performance"):
 
