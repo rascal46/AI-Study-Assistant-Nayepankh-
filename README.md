@@ -186,4 +186,10 @@ For production deployment, a database solution such as SQLite, PostgreSQL, or Fi
 
 ## Author
 
-Developed as part of an AI Internship Selection Assignment.
+## Author
+
+**Tirtharaj Bhattacharya**
+
+B.Tech Student
+
+Built using Python, Streamlit, and Google Gemini API.
