@@ -1,5 +1,11 @@
 # 📚 AI Study Assistant
 
+## Live Demo
+
+🔗 https://ai-studyassist.streamlit.app/
+
+---
+
 An AI-powered study companion built using Streamlit and Google's Gemini API.
 
 The application helps students learn more effectively through:
