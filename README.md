@@ -186,8 +186,6 @@ For production deployment, a database solution such as SQLite, PostgreSQL, or Fi
 
 ## Author
 
-## Author
-
 **Tirtharaj Bhattacharya**
 
 B.Tech Student
