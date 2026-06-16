@@ -161,36 +161,36 @@ if page == "📝 Quiz Generator":
     )
 
     quiz_level = st.selectbox(
-    "Select Level",
-    [
-        "Class 10",
-        "Class 12",
-        "Diploma",
-        "Bachelors",
-        "Masters",
-        "Competitive Exams",
-        "Government Exams",
-        "SAT"
-    ]
+        "Select Level",
+        [
+            "Class 10",
+            "Class 12",
+            "Diploma",
+            "Bachelors",
+            "Masters",
+            "Competitive Exams",
+            "Government Exams",
+            "SAT"
+        ]
     )
 
     quiz_difficulty = st.selectbox(
-    "Difficulty",
-    [
-        "Easy",
-        "Medium",
-        "Hard"
-    ]
+        "Difficulty",
+        [
+            "Easy",
+            "Medium",
+            "Hard"
+        ]
     )
 
     quiz_type = st.selectbox(
-    "Question Type",
-    [
-        "Mixed",
-        "Conceptual",
-        "Numerical",
-        "Application Based"
-    ]
+        "Question Type",
+        [
+            "Mixed",
+            "Conceptual",
+            "Numerical",
+            "Application Based"
+        ]
     )
 
     generate_quiz = st.button(
@@ -227,7 +227,7 @@ if page == "📝 Quiz Generator":
 
         with st.spinner("Generating quiz..."):
 
-          quiz_prompt = f"""
+            quiz_prompt = f"""
 Generate exactly 5 MCQs.
 
 Topic:
@@ -281,170 +281,170 @@ No extra text.
 
         try:
 
-                quiz_response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=quiz_prompt,
-                    config={
-                        "response_mime_type": "application/json"
-                    }
-                )
+            quiz_response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=quiz_prompt,
+                config={
+                    "response_mime_type": "application/json"
+                }
+            )
 
-                questions = json.loads(
-                    quiz_response.text
-                )
+            questions = json.loads(
+                quiz_response.text
+            )
 
-                st.session_state.quiz_questions = questions
-                st.session_state.current_question = 0
-                st.session_state.score = 0
-                st.session_state.show_result = False
-
-                st.success("Quiz generated!")
-
-        except Exception as e:
-
-                st.error(
-                    f"Quiz generation failed: {e}"
-                )
-
-# ==========================
-# Display Quiz
-# ==========================
-
-        if st.session_state.quiz_questions:
-
-            q_index = st.session_state.current_question
-
-            if q_index < len(st.session_state.quiz_questions):
-
-                q = st.session_state.quiz_questions[q_index]
-
-                st.markdown("---")
-
-                st.subheader(
-                    f"Question {q_index + 1} of {len(st.session_state.quiz_questions)}"
-                )
-
-                st.write(q["question"])
-
-                selected_answer = st.radio(
-                    "Choose your answer:",
-                    range(4),
-                    format_func=lambda i: q["options"][i],
-                    key=f"question_{q_index}"
-                )
-
-                if not st.session_state.show_result:
-
-                    if st.button("Submit Answer"):
-
-                        if selected_answer == q["answer"]:
-
-                            st.session_state.score += 1
-
-                            st.session_state.last_result = (
-                                "✅ Correct!\n\n"
-                                + q["explanation"]
-                            )
-
-                        else:
-
-                            correct_option = q["options"][q["answer"]]
-
-                            st.session_state.wrong_questions.append(
-                                {
-                                    "question": q["question"],
-                                    "correct_answer": correct_option,
-                                    "explanation": q["explanation"]
-                                }
-                            )
-
-                            st.session_state.last_result = (
-                                f"❌ Incorrect.\n\n"
-                                f"Correct Answer:\n{correct_option}\n\n"
-                                f"{q['explanation']}"
-                            )
-
-                        st.session_state.show_result = True
-
-                        st.rerun()
-
-                else:
-
-                    st.info(
-                        st.session_state.last_result
-                    )
-
-                    if st.button("Next Question"):
-
-                        st.session_state.current_question += 1
-                        st.session_state.show_result = False
-
-                        st.rerun()
-
-            else:
-
-                st.markdown("---")
-
-                st.success(
-                    f"Quiz Complete! Score: {st.session_state.score}/{len(st.session_state.quiz_questions)}"
-                )
-
-        if st.button("📊 Analyze My Performance"):
-
-            with st.spinner("Analyzing performance..."):
-
-                analysis_prompt = f"""
-A student completed a quiz.
-
-Topic:
-{quiz_topic}
-
-Academic Level:
-{quiz_level}
-
-Difficulty:
-{quiz_difficulty}
-
-Score:
-{st.session_state.score}/{len(st.session_state.quiz_questions)}
-
-Incorrect Questions:
-{st.session_state.wrong_questions}
-
-Analyze:
-
-1. Which concepts seem weak?
-2. What should the student revise first?
-3. Create a short 3-step revision strategy.
-4. Suggest 3 related topics to study next.
-
-Keep the response concise and educational.
-"""
-
-                analysis_response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=analysis_prompt
-                )
-
-                st.markdown("---")
-                st.subheader("📈 Performance Analysis")
-                st.write(analysis_response.text)
-
-        continue_quiz = st.radio(
-            "Would you like another quiz?",
-            ["No", "Yes"]
-        )
-
-        if continue_quiz == "Yes":
-
-            st.session_state.quiz_questions = []
+            st.session_state.quiz_questions = questions
             st.session_state.current_question = 0
             st.session_state.score = 0
             st.session_state.show_result = False
 
-            st.info(
-                "Enter a topic and generate another quiz."
+            st.success("Quiz generated!")
+
+        except Exception as e:
+
+            st.error(
+                f"Quiz generation failed: {e}"
             )
+
+    # ==========================
+    # Display Quiz
+    # ==========================
+
+    if st.session_state.quiz_questions:
+
+        q_index = st.session_state.current_question
+
+        if q_index < len(st.session_state.quiz_questions):
+
+            q = st.session_state.quiz_questions[q_index]
+
+            st.markdown("---")
+
+            st.subheader(
+                f"Question {q_index + 1} of {len(st.session_state.quiz_questions)}"
+            )
+
+            st.write(q["question"])
+
+            selected_answer = st.radio(
+                "Choose your answer:",
+                range(4),
+                format_func=lambda i: q["options"][i],
+                key=f"question_{q_index}"
+            )
+
+            if not st.session_state.show_result:
+
+                if st.button("Submit Answer"):
+
+                    if selected_answer == q["answer"]:
+
+                        st.session_state.score += 1
+
+                        st.session_state.last_result = (
+                            "✅ Correct!\n\n"
+                            + q["explanation"]
+                        )
+
+                    else:
+
+                        correct_option = q["options"][q["answer"]]
+
+                        st.session_state.wrong_questions.append(
+                            {
+                                "question": q["question"],
+                                "correct_answer": correct_option,
+                                "explanation": q["explanation"]
+                            }
+                        )
+
+                        st.session_state.last_result = (
+                            f"❌ Incorrect.\n\n"
+                            f"Correct Answer:\n{correct_option}\n\n"
+                            f"{q['explanation']}"
+                        )
+
+                    st.session_state.show_result = True
+
+                    st.rerun()
+
+            else:
+
+                st.info(
+                    st.session_state.last_result
+                )
+
+                if st.button("Next Question"):
+
+                    st.session_state.current_question += 1
+                    st.session_state.show_result = False
+
+                    st.rerun()
+
+        else:
+
+            st.markdown("---")
+
+            st.success(
+                f"Quiz Complete! Score: {st.session_state.score}/{len(st.session_state.quiz_questions)}"
+            )
+
+            if st.button("📊 Analyze My Performance"):
+
+                with st.spinner("Analyzing performance..."):
+
+                    analysis_prompt = f"""
+    A student completed a quiz.
+
+    Topic:
+    {quiz_topic}
+
+    Academic Level:
+    {quiz_level}
+
+    Difficulty:
+    {quiz_difficulty}
+
+    Score:
+    {st.session_state.score}/{len(st.session_state.quiz_questions)}
+
+    Incorrect Questions:
+    {st.session_state.wrong_questions}
+
+    Analyze:
+
+    1. Which concepts seem weak?
+    2. What should the student revise first?
+    3. Create a short 3-step revision strategy.
+    4. Suggest 3 related topics to study next.
+
+    Keep the response concise and educational.
+    """
+
+                    analysis_response = client.models.generate_content(
+                        model="gemini-2.5-flash",
+                        contents=analysis_prompt
+                    )
+
+                    st.markdown("---")
+                    st.subheader("📈 Performance Analysis")
+                    st.write(analysis_response.text)
+
+            continue_quiz = st.radio(
+                "Would you like another quiz?",
+                ["No", "Yes"]
+            )
+
+            if continue_quiz == "Yes":
+
+                st.session_state.quiz_questions = []
+                st.session_state.current_question = 0
+                st.session_state.score = 0
+                st.session_state.show_result = False
+
+                st.info(
+                    "Enter a topic and generate another quiz."
+                )
 
 # ==========================
 # Study Planner
