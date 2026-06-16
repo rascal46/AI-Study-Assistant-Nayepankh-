@@ -46,16 +46,19 @@ with st.sidebar:
 )
     st.markdown("---")
 
-    st.header("📖 Topics Studied")
+   
 
-    if len(memory["topics"]) == 0:
-        st.write("No topics yet.")
+    with st.sidebar:
 
-    else:
-        for topic in memory["topics"]:
-            st.write(f"• {topic}")
+        st.header("🕒 Previous Chats")
 
-    st.markdown("---")
+    for i, chat in enumerate(memory["chat_history"][-10:]):
+
+        if st.button(
+            chat["user"][:30],
+            key=f"chat_{i}"
+        ):
+            st.session_state.selected_chat = chat
 
 # ==========================
 # Session State
@@ -74,12 +77,19 @@ if "study_plan" not in st.session_state:
 # Display Chat History
 # ==========================
 
-if page == "💬 Chat Assistant":
-    
-    for message in st.session_state.messages:
 
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+
+if "selected_chat" in st.session_state:
+
+    st.subheader("Previous Conversation")
+
+    st.markdown(
+        f"**You:** {st.session_state.selected_chat['user']}"
+    )
+
+    st.markdown(
+        f"**AI:** {st.session_state.selected_chat['assistant']}"
+    )
 
 # ==========================
 # Chat Input
@@ -140,12 +150,46 @@ if prompt:
 
     save_memory(memory)
 
+# ==========================
+# Quiz Generator
+# ==========================
+
 if page == "📝 Quiz Generator":
 
     st.header("📝 Quiz Generator")
 
     quiz_topic = st.text_input(
         "Enter a topic"
+    )
+
+    quiz_level = st.selectbox(
+    "Select Level",
+    [
+        "Class 10",
+        "Class 12",
+        "Diploma",
+        "B.Tech",
+        "Competitive Exam"
+    ]
+    )
+
+    quiz_difficulty = st.selectbox(
+    "Difficulty",
+    [
+        "Easy",
+        "Medium",
+        "Hard"
+    ]
+    )
+
+    quiz_type = st.selectbox(
+    "Question Type",
+    [
+        "Mixed",
+        "Conceptual",
+        "Numerical",
+        "Application Based"
+    ]
     )
 
     generate_quiz = st.button(
@@ -179,35 +223,59 @@ if page == "📝 Quiz Generator":
 
         with st.spinner("Generating quiz..."):
 
-            quiz_prompt = f"""
-    Generate exactly 5 MCQs on {quiz_topic}.
+          quiz_prompt = f"""
+Generate exactly 5 MCQs.
 
-    Return ONLY valid JSON.
+Topic:
+{quiz_topic}
 
-    Format:
+Academic Level:
+{quiz_level}
 
-    [
+Difficulty:
+{quiz_difficulty}
+
+Question Type:
+{quiz_type}
+
+Requirements:
+
+- Questions must match the selected academic level.
+- Questions must match the selected difficulty.
+- Questions must match the selected question type.
+- Include conceptual understanding.
+- Include application-based questions when appropriate.
+- Avoid repeated questions.
+- Each question should have 4 options.
+- Only one option must be correct.
+- Explanation should be 2-3 lines and educational.
+
+Return ONLY valid JSON.
+
+Format:
+
+[
     {{
         "question": "Question text",
         "options": [
-        "Option A",
-        "Option B",
-        "Option C",
-        "Option D"
+            "Option A",
+            "Option B",
+            "Option C",
+            "Option D"
         ],
         "answer": 0,
         "explanation": "Short explanation"
     }}
-    ]
+]
 
-    Requirements:
-    - Return exactly 5 questions.
-    - answer must be the index of the correct option (0,1,2,3).
-    - No markdown.
-    - No code fences.
-    """
+Return exactly 5 questions.
+answer must be the correct option index (0,1,2,3).
+No markdown.
+No code fences.
+No extra text.
+"""
 
-            try:
+        try:
 
                 quiz_response = client.models.generate_content(
                     model="gemini-2.5-flash",
@@ -228,7 +296,7 @@ if page == "📝 Quiz Generator":
 
                 st.success("Quiz generated!")
 
-            except Exception as e:
+        except Exception as e:
 
                 st.error(
                     f"Quiz generation failed: {e}"
@@ -325,12 +393,28 @@ if page == "📝 Quiz Generator":
                     "Enter a topic and generate another quiz."
                 )
 
+# ==========================
+# Study Planner
+# ==========================
+
 if page == "📅 Study Planner":
 
     st.header("📅 Study Planner")
 
     subject = st.text_input(
         "Subject Name"
+    )
+
+    syllabus = st.text_area(
+    "Paste Syllabus Topics",
+    height=200,
+    placeholder="""
+    Unit 1: Signals
+    Unit 2: Systems
+    Unit 3: Fourier Series
+    Unit 4: Fourier Transform
+    Unit 5: Z Transform
+    """
     )
 
     exam_date = st.date_input(
@@ -352,21 +436,32 @@ if page == "📅 Study Planner":
     # Study Planner
     # ==========================
 
-    if generate_plan and subject:
+    if generate_plan and subject and syllabus:
 
         with st.spinner("Creating study plan..."):
 
             planner_prompt = f"""
-Create a study plan.
+Create a realistic study plan.
 
-Subject: {subject}
-Exam Date: {exam_date}
-Study Hours Per Day: {hours_per_day}
+Subject:
+{subject}
+
+Syllabus Topics:
+{syllabus}
+
+Exam Date:
+{exam_date}
+
+Available Study Hours Per Day:
+{hours_per_day}
 
 Requirements:
-- Create a day-by-day schedule.
-- Include revision.
-- Be realistic.
+
+- Divide the syllabus into manageable daily tasks.
+- Prioritize important topics.
+- Include revision days.
+- Ensure all topics are completed before the exam.
+- Present as a day-by-day schedule.
 """
 
             response = client.models.generate_content(
@@ -375,6 +470,12 @@ Requirements:
             )
 
             st.session_state.study_plan = response.text
+
+    elif generate_plan:
+
+        st.warning(
+            "Please enter both subject and syllabus topics."
+        )
 
     # ==========================
     # Display Study Plan
