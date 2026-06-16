@@ -168,8 +168,11 @@ if page == "📝 Quiz Generator":
         "Class 10",
         "Class 12",
         "Diploma",
-        "B.Tech",
-        "Competitive Exam"
+        "Bachelors",
+        "Masters",
+        "Competitive Exams",
+        "Government Exams",
+        "SAT"
     ]
     )
 
