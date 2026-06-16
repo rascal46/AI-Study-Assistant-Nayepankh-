@@ -6,14 +6,11 @@
 
 ---
 
-An AI-powered study companion built using Streamlit and Google's Gemini API.
+## Overview
 
-The application helps students learn more effectively through:
+AI Study Assistant is an intelligent learning companion built using Streamlit and Google's Gemini API.
 
-- 💬 AI Chat Assistant
-- 📝 Quiz Generator
-- 📅 Study Planner
-- 🧠 Learning Memory
+It helps students learn more efficiently through AI-powered explanations, interactive quizzes, personalized study plans, and performance analysis.
 
 ---
 
@@ -21,73 +18,125 @@ The application helps students learn more effectively through:
 
 ### 💬 AI Chat Assistant
 
-Ask study-related questions and receive AI-generated explanations using Gemini.
+Ask study-related questions and receive detailed AI-generated explanations.
 
-Examples:
+**Examples:**
 
 - Explain Z Transform
 - What is Fourier Series?
+- Explain Maxwell's Equations
 - Explain Shakespeare's Macbeth
 
-The assistant remembers previously studied topics and displays them in the sidebar.
+**Features:**
+
+- Natural language interaction
+- Detailed explanations
+- Topic tracking
+- Previous conversation access
+
+---
+
+### 🕒 Previous Chats
+
+The assistant stores previous conversations and allows users to revisit them from the sidebar.
+
+**Benefits:**
+
+- Review previous learning sessions
+- Quickly revisit explanations
+- Maintain learning continuity
 
 ---
 
 ### 📝 Quiz Generator
 
-Generate topic-based quizzes instantly.
+Generate AI-created quizzes on any topic.
 
-Features:
+#### Academic Levels
 
-- Topic Selection
-- Academic Level Selection
-  - Class 10
-  - Class 12
-  - Diploma
-  - Bachelors
-  - Masters
-  - Competitive Exams
-  - Government Exams
-  - SAT
-  
-- Difficulty Selection
-  - Easy
-  - Medium
-  - Hard
+- Class 10
+- Class 12
+- Diploma
+- Bachelors
+- Masters
+- Competitive Exams
+- Government Exams
+- SAT
 
-Quiz Workflow:
+#### Difficulty Levels
 
-1. AI generates 5 MCQs.
-2. Questions are shown one at a time.
-3. User submits an answer.
-4. Correct answer and explanation are displayed.
-5. Final score is shown after all questions are completed.
+- Easy
+- Medium
+- Hard
+
+#### Question Types
+
+- Mixed
+- Conceptual
+- Numerical
+- Application Based
+
+#### Quiz Workflow
+
+1. Generate a quiz from a topic.
+2. Questions appear one at a time.
+3. Submit your answer.
+4. Receive immediate feedback.
+5. View explanation.
+6. Proceed to the next question.
+7. Receive final score.
+
+---
+
+### 📈 Quiz Performance Analysis
+
+After completing a quiz, users can generate an AI-powered performance report.
+
+The assistant analyzes:
+
+- Weak concepts
+- Knowledge gaps
+- Revision priorities
+- Recommended next topics
+- Personalized revision strategy
+
+This creates a mini adaptive-learning experience.
 
 ---
 
 ### 📅 Study Planner
 
-Generate personalized study schedules.
+Generate personalized study schedules based on your syllabus.
 
-Inputs:
+#### Inputs
 
 - Subject Name
 - Syllabus Topics
 - Exam Date
 - Study Hours Per Day
 
-The AI creates a realistic day-by-day preparation plan including revision sessions.
+#### Output
+
+The AI creates:
+
+- Day-by-day schedule
+- Topic breakdown
+- Revision plan
+- Realistic workload distribution
+
+This helps students prepare systematically before examinations.
 
 ---
 
 ### 🧠 Learning Memory
 
-The application stores:
+The application currently stores:
 
-- Previously studied topics
+- Studied topics
 - Chat history
+- Previous conversations
 
-Current implementation uses a local JSON file.
+Storage is handled using local JSON files.
 
 ---
 
@@ -122,8 +171,8 @@ AI-Study-Assistant/
 ### Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/AI-Study-Assistant.git
-cd AI-Study-Assistant
+git clone https://github.com/rascal46/AI-Study-Assistant-Nayepankh-.git
+cd AI-Study-Assistant-Nayepankh-
 ```
 
 ### Install Dependencies
@@ -143,7 +192,7 @@ Create:
 Add:
 
 ```toml
-GEMINI_API_KEY = "API_KEY"
+GEMINI_API_KEY = "YOUR_API_KEY"
 ```
 
 ---
@@ -158,11 +207,13 @@ streamlit run app.py
 
 ## Deployment
 
-The application can be deployed using:
+This project is deployed using Streamlit Community Cloud.
 
-- Streamlit Community Cloud
+**Live Application:**
 
-Environment Secret:
+https://ai-studyassist.streamlit.app/
+
+**Required Secret:**
 
 ```toml
 GEMINI_API_KEY = "YOUR_API_KEY"
@@ -170,23 +221,31 @@ GEMINI_API_KEY = "YOUR_API_KEY"
 
 ---
 
-## Future Improvements
+## Future Roadmap
 
-- Persistent Database Storage (SQLite/PostgreSQL)
-- User Authentication
-- Progress Dashboard
-- Quiz Analytics
-- PDF Study Notes Generation
-- Flashcard Generator
-- Learning Recommendations
+Planned improvements:
+
+- Persistent database storage (SQLite/PostgreSQL)
+- User authentication
+- Progress dashboard
+- Flashcard generator
+- PDF notes generator
+- Adaptive learning paths
+- Quiz history tracking
+- Study streak system
+- Personalized topic recommendations
+- Learning analytics dashboard
 
 ---
 
-## Limitations
+## Current Limitations
 
-Current memory uses a local JSON file.
+- Memory is stored using local JSON files.
+- No user authentication.
+- Data is not shared across devices.
+- Limited long-term persistence on cloud deployments.
 
-For production deployment, a database solution such as SQLite, PostgreSQL, or Firebase would be recommended for persistent storage.
+Future versions may integrate SQLite, PostgreSQL, or Firebase.
 
 ---
 
@@ -194,6 +253,6 @@ For production deployment, a database solution such as SQLite, PostgreSQL, or Fi
 
 **Tirtharaj Bhattacharya**
 
-B.Tech Student
+B.Tech Electronics & Communication Engineering Student
 
-Built using Python, Streamlit, and Google Gemini API.
+Built with Python, Streamlit, and Google Gemini API.
