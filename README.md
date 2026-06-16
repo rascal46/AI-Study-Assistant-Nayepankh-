@@ -1,5 +1,11 @@
 # 📚 AI Study Assistant
 
+## Live Demo
+
+🔗 https://ai-studyassist.streamlit.app/
+
+---
+
 An AI-powered study companion built using Streamlit and Google's Gemini API.
 
 The application helps students learn more effectively through:
@@ -137,7 +143,7 @@ Create:
 Add:
 
 ```toml
-GEMINI_API_KEY = "YOUR_API_KEY"
+GEMINI_API_KEY = "API_KEY"
 ```
 
 ---
@@ -186,4 +192,8 @@ For production deployment, a database solution such as SQLite, PostgreSQL, or Fi
 
 ## Author
 
-Developed as part of an AI Internship Selection Assignment.
+**Tirtharaj Bhattacharya**
+
+B.Tech Student
+
+Built using Python, Streamlit, and Google Gemini API.
